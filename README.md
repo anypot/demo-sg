@@ -8,6 +8,10 @@ wired together with Docker Compose.
 - `frontend/` – Nginx serving `index.html` and proxying `/api/` to the backend
 - `backend/` – FastAPI app with `/health` and `/hello` endpoints
 - `docker-compose.yaml` – runs both services
+- `.github/workflows/` – `ci.yml` (validate, test, build, deploy dev) and
+  `deploy-prod.yml` (manual prod deploy)
+- `k8s/` – Kubernetes manifests: shared resources in `base/`, per-environment
+  overlays in `overlays/dev` and `overlays/prod`
 
 ## Run
 
@@ -35,6 +39,25 @@ through the frontend the same endpoints are reachable as `/api/hello` and
 FastAPI's interactive API docs are available at <http://localhost:8080/api/docs>
 (and the OpenAPI schema at <http://localhost:8080/api/openapi.json>).
 
+## Environments
+
+Manifests live in `k8s/` and are built with Kustomize: `k8s/base` holds the
+Deployments and Services, and each overlay adds its own namespace, image tags,
+and any environment-specific settings.
+
+- `k8s/overlays/dev` – namespace `demo-dev`, applied after every `dev` push
+- `k8s/overlays/prod` – namespace `demo-prod`, applied by the `Deploy prod` workflow
+
+Both overlays expose the Services as `ClusterIP`, so nothing is reachable from
+outside the cluster: there is no ingress or TLS yet. To reach the app from your
+machine:
+
+```bash
+kubectl port-forward -n demo-prod svc/frontend 8080:80
+```
+
+Then open <http://localhost:8080> (the frontend proxies `/api/` to the backend).
+
 ## CI and Git workflow
 
 - **Validate** – before image builds and deployments, every run builds both overlays
@@ -46,9 +69,15 @@ FastAPI's interactive API docs are available at <http://localhost:8080/api/docs>
 - **Release** – tag `main` with `vX.Y.Z` and push the tag; CI builds and pushes images tagged `vX.Y.Z`.
 - **Manual run** – `workflow_dispatch` on a branch behaves like a `dev` push
   (`dev-<sha>`); run on a `v*` tag and it behaves like a release.
+- **Deploy (dev)** – after a `dev` push (or a manual run), CI sets the image tags in
+  `k8s/overlays/dev` with `kustomize edit set image` and runs
+  `kubectl apply -k k8s/overlays/dev` against the AKS cluster. Tag pushes do not deploy.
+- **Deploy (prod)** – run the `Deploy prod` workflow manually from `main` with a release
+  tag (`gh workflow run deploy-prod.yml --ref main -f image_tag=vX.Y.Z`); it pins the prod
+  overlay to that tag's images and applies it.
 
 CI authenticates to Azure Container Registry using these secrets in the
-`registry` environment:
+`azure` environment:
 
 - `ACR_LOGIN_SERVER` – registry hostname, e.g. `myregistry.azurecr.io`
 - `ACR_USERNAME` – ACR admin username or service-principal app ID
