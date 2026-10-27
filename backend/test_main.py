@@ -14,4 +14,4 @@ def test_health():
 def test_hello():
     response = client.get("/hello")
     assert response.status_code == 200
-    assert response.json() == {"message": "Backend response!"}
+    assert response.json() == {"message": "Backend response!", "version": "1.0"}
