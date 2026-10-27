@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demo</title>
+</head>
+<body>
+  <h1>Demo</h1>
+
+  <button id="hello">Say hello to the backend</button>
+  <p id="result"></p>
+
+  <script>
+    document.getElementById("hello").addEventListener("click", async () => {
+      const result = document.getElementById("result");
+      result.textContent = "Loading...";
+
+      try {
+        const response = await fetch("/api/hello");
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        result.textContent = data.message;
+      } catch (error) {
+        result.textContent = `Error : ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
