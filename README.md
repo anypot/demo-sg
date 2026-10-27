@@ -37,6 +37,9 @@ FastAPI's interactive API docs are available at <http://localhost:8080/api/docs>
 
 ## CI and Git workflow
 
+- **Validate** – before image builds and deployments, every run builds both overlays
+  (`kustomize build k8s/overlays/dev` and `k8s/overlays/prod`), so broken
+  manifests fail fast.
 - **`dev`** – push runs ruff, pytest, then builds and pushes images tagged `dev-<sha>`.
 - **Pull request → `main`** – runs ruff and pytest, builds both images, but does not push.
 - **Merge to `main`** – triggers nothing by design.
@@ -44,8 +47,15 @@ FastAPI's interactive API docs are available at <http://localhost:8080/api/docs>
 - **Manual run** – `workflow_dispatch` on a branch behaves like a `dev` push
   (`dev-<sha>`); run on a `v*` tag and it behaves like a release.
 
-CI authenticates to Azure Container Registry using these repository secrets:
+CI authenticates to Azure Container Registry using these secrets in the
+`registry` environment:
 
 - `ACR_LOGIN_SERVER` – registry hostname, e.g. `myregistry.azurecr.io`
 - `ACR_USERNAME` – ACR admin username or service-principal app ID
 - `ACR_PASSWORD` – ACR admin password or service-principal secret
+
+## Notes
+
+- A package manager such as Poetry or uv (with a lock file) is not used yet;
+  adopting one is good practice for reproducible builds.
+- The current ACR login uses long-lived credentials, which is fine for a demo. The long-term solution is to use Azure OIDC with federated credentials instead of the stored static secrets.
