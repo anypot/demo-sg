@@ -44,6 +44,8 @@ FastAPI's interactive API docs are available at <http://localhost:8080/api/docs>
 - **Manual run** – `workflow_dispatch` on a branch behaves like a `dev` push
   (`dev-<sha>`); run on a `v*` tag and it behaves like a release.
 
-Images are published to `ghcr.io/anypot/demo-sg/frontend:<tag>` and
-`ghcr.io/anypot/demo-sg/backend:<tag>`, where `<tag>` is `dev-<sha>` for `dev`
-pushes and `vX.Y.Z` for releases.
+CI authenticates to Azure Container Registry using these repository secrets:
+
+- `ACR_LOGIN_SERVER` – registry hostname, e.g. `myregistry.azurecr.io`
+- `ACR_USERNAME` – ACR admin username or service-principal app ID
+- `ACR_PASSWORD` – ACR admin password or service-principal secret
