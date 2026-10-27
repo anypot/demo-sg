@@ -92,3 +92,15 @@ CI authenticates to Azure Container Registry using these secrets in the
 - A package manager such as Poetry or uv (with a lock file) is not used yet;
   adopting one is good practice for reproducible builds.
 - The current ACR login uses long-lived credentials, which is fine for a demo. The long-term solution is to use Azure OIDC with federated credentials instead of the stored static secrets.
+- The prod ingress uses `webapprouting.kubernetes.azure.com`, but the app
+  routing add-on does not install cert-manager. Either install cert-manager and
+  create a `letsencrypt-prod` ClusterIssuer, or remove the
+  `cert-manager.io/cluster-issuer` annotation and provide the `demo-tls` secret
+  another way (e.g. Key Vault).
+- The ingress host is a placeholder (`demo.example.com`); change it in
+  `k8s/overlays/prod/ingress.yaml` and point that DNS name at the ingress
+  address before expecting TLS to work.
+- The AKS cluster is too small to host the prod overlay (2 replicas per
+  Deployment plus the ingress controller) and the exercise's 4-hour limit does
+  not allow for the required provisioning delays, so the prod manifests are
+  illustrative and only dev is actually deployed.
