@@ -17,6 +17,10 @@ docker compose up --build
 
 Open <http://localhost:8080> and click the button to call the backend.
 
+## Test & lint
+
+From `backend/`: `pip install -r requirements.txt ruff pytest httpx && ruff check . && pytest`
+
 ## API
 
 The backend serves these endpoints directly on port 8000:
