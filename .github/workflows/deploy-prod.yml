@@ -46,11 +46,18 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Set up kubelogin
+        uses: azure/use-kubelogin@v1.2
+        with:
+          kubelogin-version: "v0.2.22"
+
       - name: Set AKS context
         uses: azure/aks-set-context@v4
         with:
           resource-group: ${{ vars.AKS_RESOURCE_GROUP }}
           cluster-name: ${{ vars.AKS_CLUSTER_NAME }}
+          admin: "false"
+          use-kubelogin: "true"
 
       - name: Set image tags
         working-directory: k8s/overlays/prod
