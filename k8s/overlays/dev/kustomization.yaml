@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: demo-dev
+
+resources:
+  - ../../base
+
+images:
+  - name: frontend
+    newName: myregistry.azurecr.io/app-name/frontend
+    newTag: dev-COMMIT_SHA
+  - name: backend
+    newName: myregistry.azurecr.io/app-name/backend
+    newTag: dev-COMMIT_SHA
+
+replicas:
+  - name: frontend
+    count: 2
+  - name: backend
+    count: 2
