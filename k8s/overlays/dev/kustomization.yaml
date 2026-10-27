@@ -13,3 +13,9 @@ images:
   - name: backend
     newName: myregistry.azurecr.io/app-name/backend
     newTag: dev-COMMIT_SHA
+
+replicas:
+  - name: frontend
+    count: 2
+  - name: backend
+    count: 2

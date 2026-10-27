@@ -5,6 +5,7 @@ namespace: demo-prod
 
 resources:
   - ../../base
+  - hpa.yaml
 
 images:
   - name: frontend

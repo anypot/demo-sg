@@ -48,6 +48,10 @@ and any environment-specific settings.
 - `k8s/overlays/dev` – namespace `demo-dev`, applied after every `dev` push
 - `k8s/overlays/prod` – namespace `demo-prod`, applied by the `Deploy prod` workflow
 
+Scaling: dev runs 2 fixed replicas per Deployment. Prod has a
+HorizontalPodAutoscaler per Deployment (2–6 replicas, 70% CPU target), so the
+base Deployments intentionally omit `replicas`.
+
 Both overlays expose the Services as `ClusterIP`, so nothing is reachable from
 outside the cluster: there is no ingress or TLS yet. To reach the app from your
 machine:
